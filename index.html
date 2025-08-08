@@ -1,0 +1,1034 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>弱视训练系统</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: 'Microsoft YaHei', 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      
+      .header {
+        text-align: center;
+        margin-bottom: 40px;
+        color: #2c3e50;
+      }
+      
+      .header h1 {
+        font-size: 2.5rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        background: linear-gradient(135deg, #e74c3c, #3498db);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      
+      .header p {
+        font-size: 1.1rem;
+        color: #7f8c8d;
+        font-weight: 300;
+      }
+      
+      .content-wrapper {
+        display: flex;
+        gap: 30px;
+        max-width: 1200px;
+        width: 100%;
+        align-items: flex-start;
+      }
+      
+      .main-container {
+        flex: 1;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .main-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, #e74c3c, #f39c12, #27ae60, #3498db);
+      }
+      
+      .training-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px;
+        margin-top: 20px;
+      }
+      
+      .training-card {
+        background: white;
+        border-radius: 16px;
+        padding: 30px 25px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      }
+      
+      .training-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        transition: all 0.3s ease;
+      }
+      
+      .training-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        border-color: rgba(0, 0, 0, 0.1);
+      }
+      
+      .training-card:active {
+        transform: translateY(-4px);
+      }
+      
+      .card-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 28px;
+        transition: all 0.3s ease;
+      }
+      
+      .training-card:hover .card-icon {
+        transform: scale(1.1);
+      }
+      
+      .card-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 8px;
+        line-height: 1.4;
+      }
+      
+      .card-description {
+        font-size: 0.9rem;
+        color: #7f8c8d;
+        line-height: 1.5;
+        margin-bottom: 15px;
+      }
+      
+      .card-button {
+        background: #f8f9fa;
+        color: #495057;
+        border: 1px solid #dee2e6;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        cursor: pointer;
+      }
+      
+      .training-card:hover .card-button {
+        background: #e9ecef;
+        color: #495057;
+        transform: scale(1.05);
+      }
+      
+      /* 卡片1 - 屈光不正弱视 - 热粉色主题 */
+      .card-1::before {
+        background: #e74c3c;
+      }
+      
+      .card-1 .card-icon {
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+        color: white;
+      }
+      
+      /* 卡片2 - 屈光参差弱视 - 青柠绿主题 */
+      .card-2::before {
+        background: #27ae60;
+      }
+      
+      .card-2 .card-icon {
+        background: linear-gradient(135deg, #27ae60, #2ecc71);
+        color: white;
+      }
+      
+      /* 卡片3 - 斜视性弱视 - 阳光黄主题 */
+      .card-3::before {
+        background: #f39c12;
+      }
+      
+      .card-3 .card-icon {
+        background: linear-gradient(135deg, #f39c12, #f1c40f);
+        color: white;
+      }
+      
+      /* 卡片4 - 形觉性剥夺弱视 - 皇家蓝主题 */
+      .card-4::before {
+        background: #3498db;
+      }
+      
+      .card-4 .card-icon {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+      }
+      
+      .side-container {
+        width: 280px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      
+      .side-button {
+        background: white;
+        border-radius: 16px;
+        padding: 25px 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      }
+      
+      .side-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        transition: all 0.3s ease;
+      }
+      
+      .side-button:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        border-color: rgba(0, 0, 0, 0.1);
+      }
+      
+      .side-button:active {
+        transform: translateY(-3px);
+      }
+      
+      .side-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        font-size: 24px;
+        transition: all 0.3s ease;
+      }
+      
+      .side-button:hover .side-icon {
+        transform: scale(1.1);
+      }
+      
+      .side-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 8px;
+        line-height: 1.4;
+      }
+      
+      .side-description {
+        font-size: 0.85rem;
+        color: #7f8c8d;
+        line-height: 1.4;
+      }
+      
+      /* 弱视病理按钮 - 紫色主题 */
+      .info-button::before {
+        background: #9b59b6;
+      }
+      
+      .info-button .side-icon {
+        background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        color: white;
+      }
+      
+      /* 训练设计按钮 - 橙色主题 */
+      .design-button::before {
+        background: #e67e22;
+      }
+      
+      .design-button .side-icon {
+        background: linear-gradient(135deg, #e67e22, #d35400);
+        color: white;
+      }
+      
+      .footer {
+        text-align: center;
+        margin-top: 30px;
+        color: #95a5a6;
+        font-size: 0.9rem;
+      }
+      
+      @media (max-width: 768px) {
+        .header h1 {
+          font-size: 2rem;
+        }
+        
+        .content-wrapper {
+          flex-direction: column;
+          gap: 20px;
+          padding: 0 10px;
+        }
+        
+        .main-container {
+          padding: 25px;
+          margin: 0;
+        }
+        
+        .side-container {
+          width: 100%;
+          flex-direction: row;
+          gap: 15px;
+        }
+        
+        .side-button {
+          flex: 1;
+          padding: 20px 15px;
+        }
+        
+        .training-grid {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+        
+        .training-card {
+          padding: 25px 20px;
+        }
+        
+        .card-icon {
+          width: 50px;
+          height: 50px;
+          font-size: 24px;
+        }
+        
+        .card-title {
+          font-size: 1.1rem;
+        }
+        
+        .side-icon {
+          width: 40px;
+          height: 40px;
+          font-size: 20px;
+        }
+        
+        .side-title {
+          font-size: 1rem;
+        }
+        
+        .side-description {
+          font-size: 0.8rem;
+        }
+      }
+      
+      /* 弹窗样式 */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+      
+      .modal-content {
+        background-color: white;
+        margin: 3% auto;
+        padding: 0;
+        border-radius: 20px;
+        width: 95%;
+        max-width: 1200px;
+        max-height: 90vh;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: modalSlideIn 0.3s ease-out;
+        overflow: hidden;
+      }
+      
+      @keyframes modalSlideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-50px) scale(0.9);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      
+      .modal-header {
+        background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        color: white;
+        padding: 20px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: 20px 20px 0 0;
+      }
+      
+      .training-header {
+        background: linear-gradient(135deg, #e67e22, #d35400);
+      }
+      
+      .modal-header h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+      
+      .close {
+        color: white;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+      }
+      
+      .close:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: scale(1.1);
+      }
+      
+      .modal-tabs {
+        display: flex;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #e9ecef;
+        overflow-x: auto;
+      }
+      
+      .tab-button {
+        background: none;
+        border: none;
+        padding: 15px 20px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: #6c757d;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+        border-bottom: 3px solid transparent;
+      }
+      
+      .tab-button:hover {
+        background-color: #e9ecef;
+        color: #495057;
+      }
+      
+      .tab-button.active {
+        color: #9b59b6;
+        border-bottom-color: #9b59b6;
+        background-color: white;
+      }
+      
+      .modal-body {
+        padding: 30px;
+        max-height: 60vh;
+        overflow-y: auto;
+      }
+      
+      .tab-content {
+        display: none;
+      }
+      
+      .tab-content.active {
+        display: block;
+      }
+      
+      .tab-content h3 {
+        color: #2c3e50;
+        margin-bottom: 20px;
+        font-size: 1.4rem;
+        border-bottom: 2px solid #9b59b6;
+        padding-bottom: 10px;
+      }
+      
+      .tab-content h4 {
+        color: #34495e;
+        margin: 25px 0 15px 0;
+        font-size: 1.2rem;
+      }
+      
+      .tab-content h5 {
+        color: #7f8c8d;
+        margin: 20px 0 10px 0;
+        font-size: 1.1rem;
+      }
+      
+      .tab-content p {
+        line-height: 1.8;
+        color: #2c3e50;
+        margin-bottom: 15px;
+        text-align: justify;
+      }
+      
+      .tab-content ul {
+        margin: 15px 0;
+        padding-left: 20px;
+      }
+      
+      .tab-content li {
+        line-height: 1.8;
+        color: #2c3e50;
+        margin-bottom: 8px;
+      }
+      
+      .info-box {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-left: 4px solid #9b59b6;
+        padding: 15px 20px;
+        margin: 20px 0;
+        border-radius: 0 8px 8px 0;
+      }
+      
+      .info-box p {
+        margin: 0;
+        font-weight: 500;
+        color: #2c3e50;
+      }
+      
+      /* 响应式设计 */
+      @media (max-width: 768px) {
+        .modal-content {
+          width: 98%;
+          margin: 5% auto;
+          max-height: 90vh;
+        }
+        
+        .modal-header {
+          padding: 15px 20px;
+        }
+        
+        .modal-header h2 {
+          font-size: 1.3rem;
+        }
+        
+        .modal-tabs {
+          flex-wrap: wrap;
+        }
+        
+        .tab-button {
+          padding: 12px 15px;
+          font-size: 0.8rem;
+        }
+        
+        .modal-body {
+          padding: 20px;
+          max-height: 50vh;
+        }
+        
+        .tab-content h3 {
+          font-size: 1.2rem;
+        }
+        
+        .tab-content h4 {
+          font-size: 1.1rem;
+        }
+      }
+      
+
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>弱视训练辅助</h1>
+      <p>专业的视觉康复训练平台</p>
+    </div>
+    
+    <div class="content-wrapper">
+      <div class="main-container">
+        <div class="training-grid">
+          <div class="training-card card-1" onclick="location.href='page1.html'">
+            <div class="card-icon">👁️</div>
+            <div class="card-title">屈光不正弱视</div>
+            <div class="card-description">通过视觉训练改善屈光不正引起的弱视问题</div>
+            <div class="card-button">开始训练</div>
+          </div>
+          
+          <div class="training-card card-2" onclick="location.href='page2.html'">
+            <div class="card-icon">🔍</div>
+            <div class="card-title">屈光参差弱视</div>
+            <div class="card-description">针对双眼屈光度数差异进行的专项训练</div>
+            <div class="card-button">开始训练</div>
+          </div>
+          
+          <div class="training-card card-3" onclick="location.href='page3.html'">
+            <div class="card-icon">🎯</div>
+            <div class="card-title">斜视性弱视</div>
+            <div class="card-description">3D轨道跑酷训练，提升立体视觉能力</div>
+            <div class="card-button">开始训练</div>
+          </div>
+          
+          <div class="training-card card-4" onclick="alert('网页正在开发中')">
+            <div class="card-icon">🌟</div>
+            <div class="card-title">形觉性剥夺弱视</div>
+            <div class="card-description">通过视觉刺激训练改善形觉剥夺问题</div>
+            <div class="card-button">开始训练</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="side-container">
+        <div class="side-button info-button" onclick="showPathologyModal()">
+          <div class="side-icon">📚</div>
+          <div class="side-title">弱视病理</div>
+          <div class="side-description">了解弱视的病理机制和分类</div>
+        </div>
+        
+        <div class="side-button design-button" onclick="showTrainingModal()">
+          <div class="side-icon">🎨</div>
+          <div class="side-title">训练设计</div>
+          <div class="side-description">个性化训练方案设计</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer">
+      <p>© 2024 弱视训练系统 - 专业医疗教育平台</p>
+    </div>
+    
+    <!-- 病理科普弹窗 -->
+    <div id="pathologyModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>弱视病理科普</h2>
+          <span class="close" onclick="closePathologyModal()">&times;</span>
+        </div>
+        
+        <div class="modal-tabs">
+          <button class="tab-button active" onclick="switchTab(0)">弱视整体</button>
+          <button class="tab-button" onclick="switchTab(1)">屈光不正弱视</button>
+          <button class="tab-button" onclick="switchTab(2)">屈光参差弱视</button>
+          <button class="tab-button" onclick="switchTab(3)">斜视性弱视</button>
+          <button class="tab-button" onclick="switchTab(4)">形觉剥夺弱视</button>
+        </div>
+        
+        <div class="modal-body">
+          <div id="tab0" class="tab-content active">
+            <h3>弱视的病理机制与视觉皮层影响：科学视角</h3>
+            
+            <h4>一、弱视的本质与视觉皮层层级</h4>
+            <p>弱视（Amblyopia）是发育期因异常视觉经验导致的脑源性视力障碍，其核心病理在于视觉通路的神经可塑性异常。视觉信息处理遵循层级结构：</p>
+            
+            <div class="info-box">
+              <p><strong>视网膜→LGN（外侧膝状体）→初级视皮层（V1）→高级视皮层（V2-V5）</strong></p>
+            </div>
+            
+            <ul>
+              <li><strong>V1区（纹状皮层）</strong>：处理基础视觉特征（边缘、方位、空间频率）</li>
+              <li><strong>V2-V4区（纹外皮层）</strong>：负责形状整合、颜色识别、轮廓感知</li>
+              <li><strong>背侧通路（V5/MT+）</strong>：空间定位与运动处理</li>
+              <li><strong>腹侧通路（V4-IT）</strong>：物体识别与细节分析</li>
+            </ul>
+            
+            <p>弱视导致这些区域的神经元响应减弱（如V1区双眼细胞减少）、抑制性神经递质（GABA）失衡，以及跨脑区功能连接异常，最终表现为视力下降和高级视觉功能障碍。</p>
+            
+            <h4>二、弱视为何影响认知能力？</h4>
+            <h5>神经资源竞争</h5>
+            <p>弱视患者需调用更多前额叶皮层资源补偿低效的视觉输入，导致注意力、工作记忆等认知功能被挤占（PMID: 39624944）。</p>
+            
+            <h5>跨模态重组</h5>
+            <p>长期弱视可能引发听觉/体感皮层侵占视觉皮层资源，影响多感官整合能力（如空间导航）。</p>
+            
+            <h5>高级视皮层受累</h5>
+            <ul>
+              <li><strong>V4区损伤</strong>：导致面部识别、场景分类困难</li>
+              <li><strong>背侧通路异常</strong>：空间工作记忆与运动预测缺陷</li>
+            </ul>
+            
+            <h4>三、儿童干预的紧迫性：关键期窗口</h4>
+            <p>儿童视觉系统的突触可塑性在8岁前最强（关键期），此阶段干预可最大化修复神经异常：</p>
+            
+            <ul>
+              <li><strong>V1区突触修剪</strong>：正常发育依赖双眼平衡输入，弱视会固化异常神经连接（如弱视眼输入被抑制）。</li>
+              <li><strong>LGN神经元体积</strong>：形觉剥夺性弱视若未在3岁前解除病因，LGN神经元将永久性萎缩（动物模型缩小20-30%）。</li>
+              <li><strong>高级皮层代偿</strong>：晚期治疗虽可提升视力，但立体视、视觉注意力等高级功能难以完全恢复。</li>
+            </ul>
+          </div>
+          
+          <div id="tab1" class="tab-content">
+            <h3>屈光不正性弱视（Ametropic Amblyopia）</h3>
+            <div class="info-box">
+              <p><strong>占比：50%（最常见）</strong></p>
+            </div>
+            
+            <h4>成因</h4>
+            <p>双眼高度屈光不正（如远视≥+5.00D、散光≥2.00D），导致视网膜成像长期模糊，缺乏清晰视觉刺激。</p>
+            
+            <h4>视觉皮层影响</h4>
+            
+            <h5>V1区（初级视皮层）</h5>
+            <ul>
+              <li>神经元对高空间频率（精细细节）的响应显著降低，导致视力模糊</li>
+              <li>灰质体积减少（结构MRI显示V1区厚度变薄）</li>
+            </ul>
+            
+            <h5>V2区（次级视皮层）</h5>
+            <ul>
+              <li>轮廓整合能力下降，患者难以识别复杂图形（如重叠线条）</li>
+            </ul>
+            
+            <h5>高级视皮层（V4）</h5>
+            <ul>
+              <li>颜色和形状识别能力受损，影响物体识别</li>
+            </ul>
+            
+            <h4>认知影响</h4>
+            <p>由于长期依赖低质量视觉输入，患者可能发展出补偿性策略（如过度依赖记忆或触觉），影响视觉注意力分配。</p>
+          </div>
+          
+          <div id="tab2" class="tab-content">
+            <h3>屈光参差性弱视（Anisometropic Amblyopia）</h3>
+            <div class="info-box">
+              <p><strong>占比：40.9%</strong></p>
+            </div>
+            
+            <h4>成因</h4>
+            <p>双眼屈光度差异≥1D（如一眼近视-1.00D，另一眼远视+3.00D），大脑抑制模糊眼信号以消除视觉冲突。</p>
+            
+            <h4>视觉皮层影响</h4>
+            
+            <h5>V1区</h5>
+            <ul>
+              <li>双眼细胞数量减少50%以上（动物模型显示弱视眼驱动的神经元减少）</li>
+              <li>抑制性突触（GABA能）增强，进一步削弱弱视眼输入</li>
+            </ul>
+            
+            <h5>V4区（高级视皮层）</h5>
+            <ul>
+              <li>对弱视眼的颜色和纹理信号处理效率降低，导致物体识别困难</li>
+            </ul>
+            
+            <h5>背侧通路（V5/MT+）</h5>
+            <ul>
+              <li>空间运动感知能力下降（如判断物体移动速度变慢）</li>
+            </ul>
+            
+            <h4>认知影响</h4>
+            <p>由于双眼输入不平衡，患者可能立体视（3D深度感知）缺失，影响空间导航和手眼协调。</p>
+          </div>
+          
+          <div id="tab3" class="tab-content">
+            <h3>斜视性弱视（Strabismic Amblyopia）</h3>
+            <div class="info-box">
+              <p><strong>占比：6.8%</strong></p>
+            </div>
+            
+            <h4>成因</h4>
+            <p>双眼视轴偏斜（如内斜视、外斜视），导致复视（重影），大脑主动抑制斜视眼的信号输入。</p>
+            
+            <h4>视觉皮层影响</h4>
+            
+            <h5>V1区</h5>
+            <ul>
+              <li>双眼神经元减少，单眼神经元主导（仅响应健眼输入）</li>
+              <li>方向选择性神经元调谐变宽（难以分辨精细运动方向）</li>
+            </ul>
+            
+            <h5>背侧通路（V5/MT+）</h5>
+            <ul>
+              <li>运动检测阈值升高（如判断快速移动物体更困难）</li>
+            </ul>
+            
+            <h5>前额叶-顶叶网络（注意力调控）</h5>
+            <ul>
+              <li>与V1区的功能连接减弱，导致视觉注意力分散</li>
+            </ul>
+            
+            <h4>认知影响</h4>
+            <p>由于双眼竞争，患者可能抑制弱视眼输入，影响多任务处理能力（如同时追踪多个物体）。</p>
+          </div>
+          
+          <div id="tab4" class="tab-content">
+            <h3>形觉剥夺性弱视（Stimulus Deprivation Amblyopia）</h3>
+            <div class="info-box">
+              <p><strong>占比：4.5%（最严重但较少见）</strong></p>
+            </div>
+            
+            <h4>成因</h4>
+            <p>视觉通路被遮挡（如先天性白内障、上睑下垂），导致关键期缺乏视觉刺激。</p>
+            
+            <h4>视觉皮层影响</h4>
+            
+            <h5>LGN（外侧膝状体）</h5>
+            <ul>
+              <li>接受弱视眼输入的层级神经元体积缩小20-30%（结构永久性损伤）</li>
+            </ul>
+            
+            <h5>V1区</h5>
+            <ul>
+              <li>突触密度降低，树突分支减少（影响信号传递效率）</li>
+            </ul>
+            
+            <h5>V2-V3区</h5>
+            <ul>
+              <li>纹理分析和轮廓整合能力显著下降（如难以识别复杂图案）</li>
+            </ul>
+            
+            <h4>认知影响</h4>
+            <p>由于早期视觉剥夺，患者可能出现跨模态代偿（如依赖听觉或触觉），但高级视觉功能（如面部识别）可能永久受损。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 训练设计弹窗 -->
+    <div id="trainingModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header training-header">
+          <h2>训练设计原理</h2>
+          <span class="close" onclick="closeTrainingModal()">&times;</span>
+        </div>
+        
+        <div class="modal-tabs">
+          <button class="tab-button active" onclick="switchTrainingTab(0)">科学基础</button>
+          <button class="tab-button" onclick="switchTrainingTab(1)">分类型训练</button>
+          <button class="tab-button" onclick="switchTrainingTab(2)">个人经历</button>
+          <button class="tab-button" onclick="switchTrainingTab(3)">游戏化优势</button>
+          <button class="tab-button" onclick="switchTrainingTab(4)">未来方向</button>
+        </div>
+        
+        <div class="modal-body">
+          <div id="training-tab0" class="tab-content active">
+            <h3>视觉通路与皮层处理的科学基础</h3>
+            
+            <p>弱视是一种发育性视觉障碍，其本质是视觉信息在从视网膜到高级视觉皮层的传递和处理过程中出现了异常。视觉信息处理遵循特定的神经通路：光线首先通过视网膜转化为神经信号，经视神经传递至外侧膝状体(LGN)，最终到达初级视觉皮层(V1)进行初步处理。</p>
+            
+            <div class="info-box">
+              <p><strong>在健康的视觉系统中：</strong></p>
+              <ul>
+                <li>V1区负责基础视觉特征提取</li>
+                <li>V2-V4区处理形状和颜色信息</li>
+                <li>背侧通路(V5/MT+)专门处理运动信息</li>
+                <li>腹侧通路负责物体识别</li>
+              </ul>
+            </div>
+            
+            <p>值得注意的是，弱视对视觉系统的影响具有层级性特征。损伤程度越深（影响的皮层区域越高级），对认知功能的影响就越显著。这种层级性的损伤模式为我们的靶向训练提供了科学依据。</p>
+          </div>
+          
+          <div id="training-tab1" class="tab-content">
+            <h3>分类型训练机制设计</h3>
+            
+            <h4>屈光不正性弱视训练</h4>
+            <p>针对屈光不正性弱视，我们设计了高精度细节识别训练模块。该模块通过动态呈现高空间频率的Gabor斑块，要求患者在干扰背景中识别特定朝向的刺激，并渐进式增加任务难度。</p>
+            
+            <div class="info-box">
+              <p><strong>神经科学机制：</strong>这种训练直接刺激V1区对高空间频率敏感的神经元，同时增强V1到V2区的信息传递效率。通过结合注意力任务，还能同步激活前额叶皮层，实现视力与认知功能的双重提升。</p>
+            </div>
+            
+            <h4>屈光参差性弱视训练</h4>
+            <p>针对屈光参差性弱视，我们开发了双眼平衡训练系统。该系统采用红蓝分视技术，为弱视眼呈现高对比度主任务，同时为健眼呈现低对比度背景元素，并要求患者完成特定的视觉搜索任务。</p>
+            
+            <div class="info-box">
+              <p><strong>神经科学机制：</strong>这种设计通过对比度差异重建双眼平衡，促进V1区抑制性突触的重塑，同时有效激活V4区对弱视眼输入的响应，在改善视力的同时增强立体视觉和空间感知能力。</p>
+            </div>
+            
+            <h4>斜视性弱视训练</h4>
+            <p>针对斜视性弱视的特点，我们重点开发了3D空间训练模块。该模块通过虚拟现实技术构建三维视觉环境，要求患者完成空间导航、目标追踪等任务。</p>
+            
+            <div class="info-box">
+              <p><strong>神经科学机制：</strong>这种训练能特异性激活V5/MT区运动敏感神经元，增强背侧通路功能连接，显著改善患者的运动预测和多目标追踪能力。</p>
+            </div>
+            
+            <h4>形觉剥夺性弱视训练</h4>
+            <p>对于形觉剥夺性弱视，我们设计了基础视觉重建训练系统。该系统采用渐进式训练策略，从简单光斑刺激开始，逐步过渡到复杂图形识别，并结合时间频率变化来优化训练效果。</p>
+            
+            <div class="info-box">
+              <p><strong>神经科学机制：</strong>这种循序渐进的训练方式能有效促进LGN到V1的突触重塑，增加V1区树突棘密度，帮助重建V2-V3区的功能连接，最终实现基础形状识别能力和轮廓整合能力的恢复。</p>
+            </div>
+          </div>
+          
+          <div id="training-tab2" class="tab-content">
+            <h3>个人治疗经历与设计启示</h3>
+            
+            <p>作为曾经的弱视患者，我亲身体验过传统治疗方法的诸多局限。遮盖疗法虽然简单，但仅被动强制使用弱视眼，缺乏针对性刺激，且依从性较差（临床数据显示平均脱落率超过30%）。</p>
+            
+            <div class="info-box">
+              <p><strong>传统方法的局限性：</strong></p>
+              <ul>
+                <li><strong>遮盖疗法：</strong>被动强制使用弱视眼，缺乏针对性刺激，依从性差</li>
+                <li><strong>阿托品压抑法：</strong>引起畏光、调节障碍等副作用，不提供主动训练</li>
+                <li><strong>DVD被动训练：</strong>刺激模式单一，无法实时调整难度，难以维持兴趣</li>
+              </ul>
+            </div>
+            
+            <p>这些亲身经历促使我在设计新系统时特别注重三个关键要素：<strong>主动参与性、实时适应性和多维度刺激</strong>。通过将先进的神经科学研究成果与游戏化设计理念相结合，我们开发出了一套真正符合儿童心理特点和视觉发展规律的治疗系统。</p>
+          </div>
+          
+          <div id="training-tab3" class="tab-content">
+            <h3>游戏化设计的科学优势</h3>
+            
+            <p>本系统的游戏化设计具有多方面的科学优势：</p>
+            
+            <h4>动机系统</h4>
+            <p>通过积分奖励机制激活伏隔核，促进多巴胺释放，显著增强训练坚持性。</p>
+            
+            <h4>注意力维持</h4>
+            <p>采用动态任务切换策略，有效防止习惯化，保持皮层兴奋性。</p>
+            
+            <h4>难度控制</h4>
+            <p>基于表现的实时调整算法确保训练始终维持在最佳挑战区，最大化神经可塑性。</p>
+            
+            <p>需要说明的是，本系统设计为与现有医疗手段协同使用，既可配合遮盖疗法，也能结合光学矫正，但绝不替代必要的医疗干预。</p>
+          </div>
+          
+          <div id="training-tab4" class="tab-content">
+            <h3>未来发展方向</h3>
+            
+            <p>展望未来，我们将从三个方向持续优化系统性能：</p>
+            
+            <h4>神经调控</h4>
+            <p>计划结合tDCS技术来进一步提升皮层可塑性，实现更精准的靶向训练。</p>
+            
+            <h4>个性化</h4>
+            <p>将开发基于fMRI的定制方案，利用AI算法实时优化训练参数。</p>
+            
+            <h4>多模态整合</h4>
+            <p>正在研究加入听觉反馈和触觉提示，打造更丰富的训练体验。</p>
+            
+            <div class="info-box">
+              <p><strong>系统意义：</strong>这套系统代表了弱视治疗从被动遮盖到主动神经重塑的范式转变。通过科学设计的游戏化训练，我们不仅能有效改善患者的视力状况，更能全面促进其视觉认知功能的发展，为弱视儿童打开更广阔的视觉世界。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+
+    
+    <script type="module" src="/src/main.js"></script>
+    
+    <script>
+      // 弹窗控制函数
+      function showPathologyModal() {
+        document.getElementById('pathologyModal').style.display = 'block';
+        document.body.style.overflow = 'hidden'; // 防止背景滚动
+      }
+      
+      function closePathologyModal() {
+        document.getElementById('pathologyModal').style.display = 'none';
+        document.body.style.overflow = 'auto'; // 恢复背景滚动
+      }
+      
+      function showTrainingModal() {
+        document.getElementById('trainingModal').style.display = 'block';
+        document.body.style.overflow = 'hidden'; // 防止背景滚动
+      }
+      
+      function closeTrainingModal() {
+        document.getElementById('trainingModal').style.display = 'none';
+        document.body.style.overflow = 'auto'; // 恢复背景滚动
+      }
+      
+      function switchTab(tabIndex) {
+        // 隐藏所有标签页内容
+        const tabContents = document.querySelectorAll('#pathologyModal .tab-content');
+        tabContents.forEach(content => content.classList.remove('active'));
+        
+        // 移除所有标签按钮的active状态
+        const tabButtons = document.querySelectorAll('#pathologyModal .tab-button');
+        tabButtons.forEach(button => button.classList.remove('active'));
+        
+        // 显示选中的标签页内容
+        document.getElementById('tab' + tabIndex).classList.add('active');
+        
+        // 激活对应的标签按钮
+        tabButtons[tabIndex].classList.add('active');
+      }
+      
+      function switchTrainingTab(tabIndex) {
+        // 隐藏所有标签页内容
+        const tabContents = document.querySelectorAll('#trainingModal .tab-content');
+        tabContents.forEach(content => content.classList.remove('active'));
+        
+        // 移除所有标签按钮的active状态
+        const tabButtons = document.querySelectorAll('#trainingModal .tab-button');
+        tabButtons.forEach(button => button.classList.remove('active'));
+        
+        // 显示选中的标签页内容
+        document.getElementById('training-tab' + tabIndex).classList.add('active');
+        
+        // 激活对应的标签按钮
+        tabButtons[tabIndex].classList.add('active');
+      }
+      
+      // 点击弹窗外部关闭弹窗
+      window.onclick = function(event) {
+        const pathologyModal = document.getElementById('pathologyModal');
+        const trainingModal = document.getElementById('trainingModal');
+        if (event.target === pathologyModal) {
+          closePathologyModal();
+        }
+        if (event.target === trainingModal) {
+          closeTrainingModal();
+        }
+      }
+      
+      // ESC键关闭弹窗
+      document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+          closePathologyModal();
+          closeTrainingModal();
+        }
+      });
+      
+      // 点击弹窗外部关闭弹窗
+      window.onclick = function(event) {
+        const pathologyModal = document.getElementById('pathologyModal');
+        const trainingModal = document.getElementById('trainingModal');
+        if (event.target === pathologyModal) {
+          closePathologyModal();
+        }
+        if (event.target === trainingModal) {
+          closeTrainingModal();
+        }
+      }
+    </script>
+  </body>
+</html>

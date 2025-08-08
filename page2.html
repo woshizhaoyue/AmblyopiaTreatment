@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>屈光参差弱视训练 - 3D VR模式</title>
+    <!-- 引入Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Microsoft YaHei', sans-serif;
+        background: #000;
+        color: white;
+        overflow: hidden;
+      }
+
+      /* 选择界面 */
+      .selection-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      .selection-content {
+        text-align: center;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 40px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      h1 {
+        font-size: 2.5em;
+        margin-bottom: 30px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      h2 {
+        font-size: 1.8em;
+        margin-bottom: 20px;
+        color: #ffd700;
+      }
+
+      .eye-selection {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin: 30px 0;
+      }
+
+      .eye-option {
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid transparent;
+        border-radius: 15px;
+        padding: 20px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 150px;
+      }
+
+      .eye-option:hover {
+        background: rgba(255, 255, 255, 0.3);
+        border-color: #ffd700;
+        transform: translateY(-5px);
+      }
+
+      .eye-option.selected {
+        background: rgba(255, 215, 0, 0.3);
+        border-color: #ffd700;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+      }
+
+      .eye-icon {
+        font-size: 3em;
+        margin-bottom: 10px;
+        display: block;
+      }
+
+      .btn {
+        background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-size: 1.1em;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        margin: 5px;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      }
+
+      .btn-secondary {
+        background: linear-gradient(45deg, #4ecdc4, #44a08d);
+      }
+
+      /* 3D VR训练界面 */
+      .vr-training-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: #000;
+        display: none;
+        z-index: 999;
+      }
+
+      /* Three.js 渲染器容器 */
+      #vr-renderer {
+        width: 100%;
+        height: 100%;
+      }
+
+      /* Google Cardboard 风格的分视效果 */
+      .vr-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      /* 左眼镜片 */
+      .left-lens {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 50vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+      }
+
+      /* 右眼镜片 */
+      .right-lens {
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 50vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+      }
+
+      /* 镜片内容区域 */
+      .lens-content {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* 控制按钮 */
+      .vr-controls {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 1001;
+        display: flex;
+        gap: 10px;
+      }
+
+      .vr-controls .btn {
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        backdrop-filter: blur(10px);
+      }
+
+      /* 训练信息 */
+      .training-info {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.7);
+        padding: 15px 25px;
+        border-radius: 25px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        z-index: 1001;
+      }
+
+      .timer {
+        font-size: 1.2em;
+        color: #ffd700;
+        margin-bottom: 5px;
+      }
+
+      .progress-bar {
+        width: 200px;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #ffd700, #ffed4e);
+        transition: width 0.3s ease;
+      }
+
+      /* 响应式设计 */
+      @media (max-width: 768px) {
+        .left-lens, .right-lens {
+          width: 50vw;
+          height: 100vh;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 眼别选择界面 -->
+    <div id="selectionScreen" class="selection-screen">
+      <div class="selection-content">
+        <h1>屈光参差弱视训练</h1>
+        <h2>3D VR分视模式</h2>
+        
+        <!-- 训练说明 -->
+        <div style="text-align: left; margin-bottom: 30px; max-width: 600px; background: rgba(0, 0, 0, 0.3); padding: 20px; border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.2);">
+          <div style="display: flex; align-items: center; margin-bottom: 15px;">
+            <span style="font-size: 2em; margin-right: 15px;">🥽</span>
+            <h3 style="color: #ffd700; font-size: 1.3em; margin: 0;">Google Cardboard 分视原理</h3>
+          </div>
+          <p style="line-height: 1.6; margin-bottom: 15px;">
+            本训练采用Google Cardboard分视技术，将屏幕分为左右两个区域，分别对应左右眼。两眼观看同一个3D场景，但弱视眼区域提供强视觉刺激，健眼区域提供弱刺激，促进弱视眼视觉发育。
+          </p>
+          <p style="line-height: 1.6; color: #ffd700; font-weight: bold;">
+            建议使用Google Cardboard设备获得最佳3D分视效果！
+          </p>
+        </div>
+        
+        <div class="eye-selection">
+          <div class="eye-option" onclick="selectEye('left')">
+            <span class="eye-icon">👁️</span>
+            <div>左眼</div>
+          </div>
+          <div class="eye-option" onclick="selectEye('right')">
+            <span class="eye-icon">👁️</span>
+            <div>右眼</div>
+          </div>
+        </div>
+
+        <div style="margin-top: 30px;">
+          <button class="btn" onclick="start3DVRTraining()" id="startBtn" disabled>
+            开始3D VR训练
+          </button>
+          <a href="index.html" class="btn btn-secondary">
+            返回首页
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3D VR训练界面 -->
+    <div id="vrTrainingScreen" class="vr-training-screen">
+      <div class="vr-container">
+        <!-- 左眼镜片 -->
+        <div class="left-lens">
+          <div class="lens-content" id="leftLensContent"></div>
+        </div>
+        
+        <!-- 右眼镜片 -->
+        <div class="right-lens">
+          <div class="lens-content" id="rightLensContent"></div>
+        </div>
+      </div>
+
+      <!-- 控制按钮 -->
+      <div class="vr-controls">
+        <button class="btn" onclick="pauseTraining()" id="pauseBtn">暂停</button>
+        <button class="btn" onclick="exitVRTraining()">退出VR</button>
+      </div>
+
+      <!-- 训练信息 -->
+      <div class="training-info">
+        <div class="timer" id="timer">训练时间: 00:00</div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+        <div style="font-size: 0.9em; margin-top: 5px;">进度: <span id="progressText">0%</span></div>
+      </div>
+    </div>
+
+    <!-- 背景音乐 -->
+    <audio id="bgMusic" loop>
+      <source src="public/music/page2_bgm.wav" type="audio/wav">
+    </audio>
+    
+    <script src="src/page2.js"></script>
+  </body>
+</html>

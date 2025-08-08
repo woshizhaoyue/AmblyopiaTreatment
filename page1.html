@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>小狐狸的冒险之旅 - 屈光不正弱视治疗</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        height: 100vh;
+        font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', Arial, sans-serif;
+        background: #000;
+      }
+      
+      html {
+        overflow: hidden;
+      }
+      
+      /* 视频背景样式 */
+      #background-video {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        object-fit: cover;
+        z-index: -2;
+      }
+      
+      /* 地图背景样式 */
+      #background-map {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        object-fit: fill;
+        z-index: -1;
+      }
+      
+      /* 画布样式 */
+      #drawing-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 0;
+        cursor: crosshair;
+      }
+      
+      /* 返回按钮样式 */
+      .return-button {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 100;
+        background: linear-gradient(135deg, #00FF00, #00CC00);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        padding: 12px 24px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        box-shadow: 0 4px 15px rgba(0, 255, 0, 0.6);
+        transition: all 0.3s ease;
+        font-family: inherit;
+      }
+      
+      .return-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 255, 0, 0.8);
+      }
+      
+      .return-button:active {
+        transform: translateY(0);
+      }
+      
+      /* 标题样式 */
+      .game-title {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 100;
+        color: white;
+        font-size: 28px;
+        font-weight: bold;
+        text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.8);
+        background: linear-gradient(135deg, rgba(0, 255, 0, 0.9), rgba(0, 200, 0, 0.9));
+        padding: 15px 30px;
+        border-radius: 25px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        animation: titleGlow 2s ease-in-out infinite alternate;
+      }
+      
+      @keyframes titleGlow {
+        0% { box-shadow: 0 4px 15px rgba(0, 255, 0, 0.6); }
+        100% { box-shadow: 0 4px 25px rgba(0, 200, 0, 0.8); }
+      }
+      
+      /* 小狐狸欢迎界面 */
+      #fox-welcome {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: linear-gradient(135deg, rgba(0, 255, 0, 0.95), rgba(0, 200, 0, 0.95));
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+      }
+      
+      #fox-character {
+        font-size: 120px;
+        margin-bottom: 30px;
+        animation: foxWave 1.5s ease-in-out infinite;
+        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+      }
+      
+      @keyframes foxWave {
+        0%, 100% { transform: rotate(0deg) scale(1); }
+        25% { transform: rotate(10deg) scale(1.05); }
+        75% { transform: rotate(-10deg) scale(1.05); }
+      }
+      
+      #dialog-box {
+        background: white;
+        padding: 25px;
+        border-radius: 20px;
+        max-width: 450px;
+        text-align: center;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        position: relative;
+        border: 3px solid #FFD700;
+        animation: dialogBounce 0.6s ease-out;
+      }
+      
+      @keyframes dialogBounce {
+        0% { transform: scale(0.8) translateY(20px); opacity: 0; }
+        50% { transform: scale(1.05) translateY(-5px); }
+        100% { transform: scale(1) translateY(0); opacity: 1; }
+      }
+      
+      #dialog-text {
+        font-size: 20px;
+        color: #333;
+        margin-bottom: 20px;
+        line-height: 1.4;
+        font-weight: 500;
+      }
+      
+      #dialog-next {
+        background: linear-gradient(135deg, #00FF00, #00CC00);
+        color: white;
+        border: none;
+        padding: 12px 30px;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 18px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 255, 0, 0.6);
+        font-family: inherit;
+      }
+      
+      #dialog-next:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 255, 0, 0.8);
+      }
+      
+      #dialog-next:active {
+        transform: translateY(0);
+      }
+      
+      .dialog-arrow {
+        position: absolute;
+        bottom: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 15px solid transparent;
+        border-right: 15px solid transparent;
+        border-top: 15px solid white;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+      }
+      
+      /* 游戏说明样式 */
+      .game-instructions {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        z-index: 10;
+        color: white;
+        font-size: 16px;
+        background: rgba(0, 0, 0, 0.8);
+        padding: 20px;
+        border-radius: 15px;
+        max-width: 350px;
+        border: 2px solid #FFD700;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      }
+      
+      .game-instructions h3 {
+        margin-bottom: 15px;
+        color: #FFD700;
+        font-size: 20px;
+        text-align: center;
+      }
+      
+      .game-instructions ul {
+        list-style: none;
+      }
+      
+      .game-instructions li {
+        margin: 8px 0;
+        padding-left: 20px;
+        position: relative;
+        line-height: 1.4;
+      }
+      
+      .game-instructions li:before {
+        content: "🌟";
+        position: absolute;
+        left: 0;
+        top: 0;
+      }
+      
+
+    </style>
+  </head>
+  <body>
+    <!-- 背景视频 -->
+    <video id="background-video" autoplay muted loop playsinline>
+      <source src="public/picture/rad_stripe.mp4" type="video/mp4">
+    </video>
+    
+    <!-- 背景地图 -->
+    <img id="background-map" src="public/picture/map.png" alt="背景地图">
+    
+    <!-- 绘画画布 -->
+    <canvas id="drawing-canvas"></canvas>
+    
+    <!-- 返回按钮 -->
+    <button class="return-button" onclick="location.href='index.html'">🏠 返回首页</button>
+    
+    <!-- 游戏标题 -->
+    <div class="game-title">🦊 小狐狸的冒险之旅</div>
+    
+    <!-- 游戏说明 -->
+    <div class="game-instructions">
+      <h3>🎮 游戏说明</h3>
+      <ul>
+        <li>点击🌱起点开始画路径</li>
+        <li>绘画时点击任意位置停止当前路径</li>
+        <li>下次从✨中站点继续画路径到🏁终点！</li>
+        <li>帮助小狐狸找到回家的路吧！</li>
+      </ul>
+    </div>
+    
+
+    
+    <!-- 小狐狸欢迎界面 -->
+    <div id="fox-welcome">
+      <div id="fox-character">🦊</div>
+      <div id="dialog-box">
+        <div id="dialog-text">嗨！你好啊！</div>
+        <button id="dialog-next">开始冒险 ✨</button>
+        <div class="dialog-arrow"></div>
+      </div>
+    </div>
+    
+    <script type="module" src="src/page1.js"></script>
+  </body>
+</html>

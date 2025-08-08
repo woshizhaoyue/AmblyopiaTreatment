@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <title>页面3 - 3D环形轨道跑酷</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        overflow: hidden; /* 防止页面滚动 */
+        font-family: Arial, sans-serif;
+        background: #000;
+      }
+      
+      /* 游戏画布样式 */
+      canvas {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 1;
+      }
+      
+      /* UI按钮容器 */
+      .ui-container {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      /* UI按钮样式 */
+      .ui-button {
+        background: rgba(255, 255, 255, 0.9);
+        border: 2px solid #333;
+        border-radius: 8px;
+        padding: 12px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        color: #333;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      }
+      
+      .ui-button:hover {
+        background: rgba(255, 255, 255, 1);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+      }
+      
+      .ui-button:active {
+        transform: translateY(0);
+      }
+      
+      /* 标题样式 */
+      .game-title {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 10;
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+        background: rgba(0, 0, 0, 0.5);
+        padding: 10px 20px;
+        border-radius: 8px;
+      }
+      
+      /* 控制说明 */
+      .controls-info {
+        position: fixed;
+        bottom: 20px;
+        left: 20px;
+        z-index: 10;
+        color: white;
+        font-size: 14px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 15px;
+        border-radius: 8px;
+        max-width: 300px;
+      }
+      
+      .controls-info h3 {
+        margin-bottom: 10px;
+        color: #FFD700;
+      }
+      
+      .controls-info ul {
+        list-style: none;
+      }
+      
+      .controls-info li {
+        margin: 5px 0;
+        padding-left: 15px;
+        position: relative;
+      }
+      
+      .controls-info li:before {
+        content: "•";
+        color: #FFD700;
+        position: absolute;
+        left: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- 游戏标题 -->
+    <div class="game-title">3D环形轨道跑酷</div>
+    
+    <!-- UI按钮容器 -->
+    <div class="ui-container">
+      <button class="ui-button" onclick="location.href='index.html'">返回首页</button>
+    </div>
+    
+    <!-- 控制说明 -->
+    <div class="controls-info">
+      <h3>游戏控制</h3>
+      <ul>
+        <li>左右箭头：切换轨道</li>
+        <li>A/D键：在轨道内移动</li>
+        <li>上下箭头：调整速度</li>
+        <li>空格键：暂停/继续</li>
+      </ul>
+    </div>
+    
+    <script type="module" src="src/page3.js"></script>
+  </body>
+</html>
